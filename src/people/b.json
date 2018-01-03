@@ -1,0 +1,100 @@
+{
+  "name": "B",
+  "fontSize": 256,
+  "messages": ["B"],
+  "children": [
+    {
+      "optionText": "Awake.",
+      "fontSize": 64,
+      "messages": [
+        "It's a sort of revelation.",
+        "The morning."
+      ],
+      "children": [
+        {
+          "optionText": "Coffee.",
+          "children": [
+            {
+              "optionText": "Wait.",
+              "children": [
+                {
+                  "optionText": "Wait.",
+                  "children": [],
+                  "fontSize": 64,
+                  "messages": [
+                    "Waiting."
+                  ]
+                },
+                {
+                  "optionText": "Impatient.",
+                  "children": [],
+                  "fontSize": 64,
+                  "messages": [
+                    "Waiting."
+                  ]
+                }
+              ],
+              "fontSize": 64,
+              "messages": [
+                "Waiting."
+              ]
+            },
+            {
+              "optionText": "Impatient.",
+              "children": [{
+                  "optionText": "Wait.",
+                  "children": [{
+                  "optionText": "Wait.",
+                  "children": [],
+                  "fontSize": 64,
+                  "messages": [
+                    "Waiting."
+                  ]
+                },
+                {
+                  "optionText": "Impatient.",
+                  "children": [],
+                  "fontSize": 64,
+                  "messages": [
+                    "Waiting."
+                  ]
+                }],
+                  "fontSize": 64,
+                  "messages": [
+                    "Waiting."
+                  ]
+                },
+                {
+                  "optionText": "Impatient.",
+                  "children": [],
+                  "fontSize": 64,
+                  "messages": [
+                    "Waiting."
+                  ]
+                }],
+              "fontSize": 64,
+              "messages": [
+                "Waiting."
+              ]
+            }
+          ],
+          "fontSize": 64,
+          "messages": [
+            "A kettle.",
+            "A grinding.",
+            "A pouring.",
+            "And await."
+          ]
+        },
+        {
+          "optionText": "Just a few more minutes.",
+          "children": [],
+          "fontSize": 64,
+          "messages": [
+            "Bliss."
+          ]
+        }
+      ]
+    }
+  ]
+}
