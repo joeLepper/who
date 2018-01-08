@@ -1,4 +1,4 @@
-# Hi Dan.
+# What's all this?
 
 Branched conversations are hierarchical structures. Since we can graph them, we can navigate them physically as we navigate them temporally. Here's a fun little animation.
 

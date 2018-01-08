@@ -1,66 +1,75 @@
 const React = require('react')
 const { Component } = React
+const styled = require('styled-components').default
 
-const Message = require('./message')
+const Messages = require('./messages')
+const Buttons = require('./buttons')
 
-const BUTTON_PADDING = 16
-const BUTTON_FONT_SIZE = 16
-
-
+const Div = styled.div`
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+`
 class ConversationNode extends Component {
   constructor () {
     super(...arguments)
     this.advanceMessage = this.advanceMessage.bind(this)
-    this.renderButtons = this.renderButtons.bind(this)
-    this.renderMessages = this.renderMessages.bind(this)
+    this.reverseMessage = this.reverseMessage.bind(this)
     this.state = {
       idx: 0,
     }
   }
   advanceMessage () {
     const proposedIdx = this.state.idx + 1
-    if (proposedIdx < this.props.node.data.messages.length) {
-      this.setState({ idx: proposedIdx })
-    }
+    this.setState({ opacity: 0 })
+    setTimeout(() => {
+      const newState = { opacity: 1 }
+      if (proposedIdx < this.props.node.data.messages.length) {
+        newState.idx = proposedIdx
+      }
+      this.setState(newState)
+    }, 500)
   }
-  renderMessages () {
-    const messages = this.props.node.data.messages.map((msg, i) => (
-      <Message
-        x={this.props.dimensions.w * i}
-        y={this.props.node.data.fontSize * (i + 1)}
-        key={i}
-        fontSize={this.props.node.data.fontSize}>{msg}</Message>
-    ))
-    return (
-      <g className="Messages">{messages}</g>
-    )
-  }
-  renderButtons () {
-    if (!this.props.node.children) return null
-    const buttons = this.props.node.children.map((child, i) => {
-      const transX = this.props.dimensions.w * (this.props.node.data.messages.length - 1)
-      const transY = BUTTON_PADDING +
-        (BUTTON_FONT_SIZE * (i + 1)) +
-        (this.props.node.data.messages.length * this.props.node.data.fontSize)
-      return (
-        <text
-          x="1em"
-          y={transY}
-          style={{ cursor: 'pointer' }}
-          onClick={(e) => {
-            e.stopPropagation()
-            this.props.onSelectNode(child)
-          }}
-          key={i}>{child.data.optionText}</text>
-      )
-    })
-    return <g className="Buttons">{buttons}</g>
+  reverseMessage () {
+    const proposedIdx = this.state.idx - 1
+    this.setState({ opacity: 0 })
+    setTimeout(() => {
+      const newState = { opacity: 1 }
+      if (proposedIdx >= 0) {
+        newState.idx = proposedIdx
+      }
+      this.setState(newState)
+    }, 500)
   }
   render () {
     return (
       <g transform={`translate(${this.props.node.x}, ${this.props.node.y})`}>
-        {this.renderMessages()}
-        {this.renderButtons()}
+        <foreignObject
+          width={this.props.dimensions.w}
+          height={this.props.dimensions.h}>
+          <Div>
+            <Messages
+              advanceMessage={this.advanceMessage}
+              reverseMessage={this.reverseMessage}
+              opacity={this.state.opacity}
+              index={this.state.idx}
+              onMessageChange={this.props.onMessageChange}
+              onMessageAdd={this.props.onMessageAdd}
+              editing={this.props.editing}
+              node={this.props.node}/>
+            <Buttons
+              editing={this.props.editing}
+              onButtonAdd={this.props.onButtonAdd}
+              onButtonChange={this.props.onButtonChange}
+              onSelectNode={this.props.onSelectNode}
+              opacity={this.state.idx === this.props.node.data.messages.length - 1 ? 1 : 0}
+              node={this.props.node} />
+          </Div>
+        </foreignObject>
       </g>
     )
   }

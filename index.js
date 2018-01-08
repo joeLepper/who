@@ -1,8 +1,9 @@
 const express = require('express')
 const webpack = require('webpack')
 const webpackDevMiddleware = require('webpack-dev-middleware')
+const bodyParser = require('body-parser')
 const { join, resolve } = require('path')
-const { readFile } = require('fs')
+const { readFile, writeFile } = require('fs')
 const app = express()
 
 const compiler = webpack({
@@ -51,8 +52,19 @@ const html = `
 </html>
 `
 
-app.use('/assets', express.static('assets'))
 app.use(webpackDevMiddleware(compiler, {}))
 app.get('/', (req, res) => res.status(200).send(html))
+app.use(bodyParser.json())
+app.post('/person/:id', (req, res) => {
+  const fileContents = JSON.stringify(req.body, null, 2)
+  const filePath = join(process.cwd(), 'src', 'people', `${req.params.id}.json`)
+  console.log('========')
+  console.log(filePath)
+  console.log(fileContents)
+  writeFile(filePath, fileContents, (err) => {
+    if (err) res.status(500).send('Something bad.')
+    else res.status(200).send('Something good.')
+  })
+})
 
 app.listen(5556)
