@@ -10,7 +10,9 @@ class Screen extends Component {
         editing={this.props.editing}
         onSelectNode={this.props.onSelectNode}
         onButtonChange={this.props.onButtonChange}
+        onButtonDelete={this.props.onButtonDelete}
         onButtonAdd={this.props.onButtonAdd}
+        onMessageDelete={this.props.onMessageDelete}
         onMessageChange={this.props.onMessageChange}
         onMessageAdd={this.props.onMessageAdd}
         dimensions={this.props.dimensions}

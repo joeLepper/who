@@ -20,7 +20,6 @@ class Buttons extends Component {
     this.handleButtonAdd = this.handleButtonAdd.bind(this)
   }
   handleButtonAdd () {
-    console.log(this.props)
     const newNodeId = Guid.raw()
     const currentNodeId = this.props.node.data.id
     this.props.onButtonAdd(newNodeId, currentNodeId)
@@ -35,6 +34,7 @@ class Buttons extends Component {
           opacity={this.props.opacity}
           onChange={this.props.onButtonChange}
           key={i}
+          onButtonDelete={this.props.onButtonDelete}
           onClick={(e) => {
             if (!this.props.editing) this.props.onSelectNode({ id: child.data.id })
           }}>{child.data.optionText}</Button>

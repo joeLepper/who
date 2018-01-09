@@ -36,6 +36,7 @@ class Button extends Component {
   constructor () {
     super(...arguments)
     this.handleClick = this.handleClick.bind(this)
+    this.handleButtonDelete = this.handleButtonDelete.bind(this)
     this.renderDisplayMessage = this.renderDisplayMessage.bind(this)
   }
   handleClick (e) {
@@ -55,16 +56,21 @@ class Button extends Component {
       <A>{this.props.children}</A>
     )
   }
+  handleButtonDelete () {
+    this.props.onButtonDelete(this.props.nodeId)
+  }
   render () {
-    const onClick = this.props.opacity ? this.handleClick : () => {}
     const containerStyle = {
       opacity: this.props.opacity,
     }
     if (this.props.opacity) containerStyle.cursor = 'pointer'
     return (
       <ButtonContainer
-        onClick={onClick}
-        style={containerStyle}>
+        onClick={this.handleClick}
+        style={Object.assign(containerStyle, this.props.style)}>
+        {this.props.editing ? (
+          <a onClick={this.handleButtonDelete}>X</a>
+        ) : null}
         {this.renderDisplayMessage()}
       </ButtonContainer>
     )

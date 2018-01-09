@@ -17,8 +17,6 @@ const stratifier = d3.stratify().parentId((d) => {
   if (parent) return parent.id
   return undefined
 })
-console.log('PERSON')
-console.log(person)
 
 const GameContainer = styled.div`
   position: relative;
@@ -48,8 +46,10 @@ class Game extends Component {
     this.handleResize = this.handleResize.bind(this)
     this.handleButtonAdd = this.handleButtonAdd.bind(this)
     this.handleButtonChange = this.handleButtonChange.bind(this)
-    this.handleMessageChange = this.handleMessageChange.bind(this)
+    this.handleButtonDelete = this.handleButtonDelete.bind(this)
     this.handleMessageAdd = this.handleMessageAdd.bind(this)
+    this.handleMessageChange = this.handleMessageChange.bind(this)
+    this.handleMessageDelete = this.handleMessageDelete.bind(this)
 
     const initialState = this.updateState({})
     initialState.editing = false
@@ -74,9 +74,19 @@ class Game extends Component {
     })
     this.setState(this.updateState(this.state))
   }
+  handleButtonDelete (nodeId) {
+    if (confirm('Deleting this button will delete its associated page. Are you sure?')) {
+      let deleteIndex
+      person.forEach((node, i) => {
+        if (nodeId === node.id) deleteIndex = i
+      })
+      person.splice(deleteIndex, 1)
+
+      this.setState(this.updateState(this.state))
+    }
+  }
 
   handleButtonAdd (newNodeId, currentNodeId) {
-    // we've got to mutate here just because
     person.forEach((node, i) => {
       if (currentNodeId === node.id) {
         node.children.push(newNodeId)
@@ -93,10 +103,18 @@ class Game extends Component {
     this.setState(this.updateState(this.state))
   }
   handleMessageChange (nodeId, messageIndex, message) {
-    // we've got to mutate here just because
     person.forEach((node, i) => {
       if (nodeId === node.id) {
         node.messages[messageIndex] = message
+        person[i] = node
+      }
+    })
+    this.setState(this.updateState(this.state))
+  }
+  handleMessageDelete (nodeId, messageIndex) {
+    person.forEach((node, i) => {
+      if (nodeId === node.id) {
+        node.messages = node.messages.filter((_, i) => i !== messageIndex)
         person[i] = node
       }
     })
@@ -164,6 +182,7 @@ class Game extends Component {
       <Button
         editing={false}
         opacity="1"
+        style={{ fontSize: 16 }}
         onClick={(e) => {
           e.preventDefault()
           const newEditingState = !this.state.editing
@@ -191,7 +210,6 @@ class Game extends Component {
   }
 
   render () {
-    console.log(this.state)
     return (
       <GameContainer>
         {this.renderControlPanel()}
@@ -213,11 +231,13 @@ class Game extends Component {
                     w: w,
                     h: h,
                   }}
-                  onButtonAdd={this.handleButtonAdd}
                   onSelectNode={this.handleSelectNode}
+                  onButtonAdd={this.handleButtonAdd}
                   onButtonChange={this.handleButtonChange}
-                  onMessageChange={this.handleMessageChange}
+                  onButtonDelete={this.handleButtonDelete}
                   onMessageAdd={this.handleMessageAdd}
+                  onMessageChange={this.handleMessageChange}
+                  onMessageDelete={this.handleMessageDelete}
                   nodes={this.state.nodes} />
               )
             }

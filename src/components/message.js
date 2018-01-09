@@ -1,6 +1,7 @@
 const React = require('react')
 const { Component } = React
 const styled = require('styled-components').default
+const Button = require('./button')
 
 const MessageContainer = styled.li`
   font-size: 32;
@@ -23,23 +24,51 @@ const Input = styled.input`
   font-size: 32;
   border: none;
   outline: none;
-  width: 100%;
+  width: 90%;
   text-align: center;
   color: #f09;
+`
+
+const Div = styled.div`
+  margin: auto;
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+`
+
+const A = styled.a`
+  width: 10%;
+  margin: auto;
+  font-size: 16;
 `
 
 class Message extends Component {
   constructor () {
     super(...arguments)
     this.renderDisplayMessage = this.renderDisplayMessage.bind(this)
+    this.handleMessageDelete = this.handleMessageDelete.bind(this)
+  }
+  handleMessageDelete () {
+    this.props.onMessageDelete(this.props.nodeId, this.props.messageIndex)
   }
   renderDisplayMessage () {
     if (this.props.editing) return (
-      <Input
-        value={this.props.children}
-        onChange={(e) => {
-          this.props.onChange(this.props.nodeId, this.props.messageIndex, e.currentTarget.value)
-        }}/>
+      <Div>
+        <Button
+          editing={false}
+          style={{
+            width: '6%',
+            fontSize: 16,
+          }}
+          opacity={this.props.opacity}
+          onClick={this.handleMessageDelete}
+          key='new button'>delete</Button>
+        <Input
+          value={this.props.children}
+          onChange={(e) => {
+            this.props.onChange(this.props.nodeId, this.props.messageIndex, e.currentTarget.value)
+          }}/>
+      </Div>
     )
     return (
       <P>{this.props.children}</P>

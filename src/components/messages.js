@@ -16,22 +16,25 @@ const MessagesContainer = styled.ul`
   cursor: pointer;
 `
 
+const Li = styled.li`
+  cursor: pointer;
+`
+
 class Messages extends Component {
   render () {
     const msg = this.props.node.data.messages[this.props.index]
-    console.log('inside message')
-    console.log(this.props)
     return (
       <MessagesContainer>
-        <li onClick={this.props.editing ? () => {} : this.props.reverseMessage}><a>{'<'}</a></li>
+        <Li onClick={this.props.editing ? () => {} : this.props.reverseMessage}><a>{'<'}</a></Li>
         <Message
+          onMessageDelete={this.props.onMessageDelete}
           onClick={this.props.editing ? () => {} : this.props.advanceMessage}
           nodeId={this.props.node.data.id}
           messageIndex={this.props.index}
           editing={this.props.editing}
           onChange={this.props.onMessageChange}
           opacity={this.props.opacity}>{msg}</Message>
-        <li onClick={this.props.editing ? () => {
+        <Li onClick={this.props.editing ? () => {
           if (this.props.index === this.props.node.data.messages.length - 1) {
             this.props.onMessageAdd(this.props.node.data.id, () => {
               this.props.advanceMessage()
@@ -40,7 +43,7 @@ class Messages extends Component {
           else this.props.advanceMessage()
         } : this.props.advanceMessage}>
           <a>{this.props.editing && (this.props.index === this.props.node.data.messages.length - 1) ? '+' : '>'}</a>
-        </li>
+        </Li>
       </MessagesContainer>
     )
   }
