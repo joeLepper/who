@@ -22,7 +22,11 @@ class ConversationNode extends Component {
     this.handleMessageDelete = this.handleMessageDelete.bind(this)
     this.state = {
       idx: 0,
+      opacity: 1,
     }
+  }
+  componentWillReceiveProps (nextProps) {
+    if (this.props.node.data.id !== nextProps.node.data.id) this.setState({ idx: 0})
   }
   advanceMessage () {
     const proposedIdx = this.state.idx + 1
@@ -53,32 +57,32 @@ class ConversationNode extends Component {
   }
   render () {
     return (
-      <g transform={`translate(${this.props.node.x}, ${this.props.node.y})`}>
-        <foreignObject
-          width={this.props.dimensions.w}
-          height={this.props.dimensions.h}>
-          <Div>
-            <Messages
-              advanceMessage={this.advanceMessage}
-              reverseMessage={this.reverseMessage}
-              opacity={this.state.opacity}
-              index={this.state.idx}
-              onMessageDelete={this.handleMessageDelete}
-              onMessageChange={this.props.onMessageChange}
-              onMessageAdd={this.props.onMessageAdd}
-              editing={this.props.editing}
-              node={this.props.node}/>
-            <Buttons
-              editing={this.props.editing}
-              onButtonAdd={this.props.onButtonAdd}
-              onButtonChange={this.props.onButtonChange}
-              onButtonDelete={this.props.onButtonDelete}
-              onSelectNode={this.props.onSelectNode}
-              opacity={this.state.idx === this.props.node.data.messages.length - 1 ? 1 : 0}
-              node={this.props.node} />
-          </Div>
-        </foreignObject>
-      </g>
+      <foreignObject
+        width={this.props.w}
+        height={this.props.h}>
+        <Div>
+          <Messages
+            advanceMessage={this.advanceMessage}
+            reverseMessage={this.reverseMessage}
+            opacity={this.state.opacity}
+            index={this.state.idx}
+            onMessageDelete={this.handleMessageDelete}
+            onMessageChange={this.props.onMessageChange}
+            onMessageAdd={this.props.onMessageAdd}
+            editing={this.props.editing}
+            zoomRatio={this.props.zoomRatio}
+            node={this.props.node}/>
+          <Buttons
+            editing={this.props.editing}
+            onButtonAdd={this.props.onButtonAdd}
+            onButtonChange={this.props.onButtonChange}
+            onButtonDelete={this.props.onButtonDelete}
+            onSelectNode={this.props.onSelectNode}
+            opacity={this.props.node.data.messages.length - 1 === this.state.idx ? 1 : 0}
+            node={this.props.node} />
+
+        </Div>
+      </foreignObject>
     )
   }
 }

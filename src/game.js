@@ -7,6 +7,7 @@ const d3 = require('d3-hierarchy')
 const styled = require('styled-components').default
 
 const PERSON_ID = 'joe'
+const BASE_ZOOM = 0.5
 
 const Button = require('./components/button')
 const person = require(`./people/${PERSON_ID}.json`)
@@ -37,33 +38,38 @@ const ControlPanel = styled.div`
 `
 
 class Game extends Component {
-
   constructor () {
     super(...arguments)
 
-    this.handleSelectNode = this.handleSelectNode.bind(this)
     this.updateState = this.updateState.bind(this)
+
+    this.renderZoomButton = this.renderZoomButton.bind(this)
+    this.renderEditButton = this.renderEditButton.bind(this)
+    this.renderParentButton = this.renderParentButton.bind(this)
+    this.renderControlPanel = this.renderControlPanel.bind(this)
+
+    this.handleSelectNode = this.handleSelectNode.bind(this)
     this.handleResize = this.handleResize.bind(this)
     this.handleButtonAdd = this.handleButtonAdd.bind(this)
+
     this.handleButtonChange = this.handleButtonChange.bind(this)
     this.handleButtonDelete = this.handleButtonDelete.bind(this)
+
     this.handleMessageAdd = this.handleMessageAdd.bind(this)
     this.handleMessageChange = this.handleMessageChange.bind(this)
     this.handleMessageDelete = this.handleMessageDelete.bind(this)
 
-    const initialState = this.updateState({})
+    const initialState = this.updateState({ zoom: { x: BASE_ZOOM, y: BASE_ZOOM } })
     initialState.editing = false
+
     this.state = initialState
   }
-
   componentDidMount () {
     window.addEventListener('resize', debounce(this.handleResize, 200))
   }
-
   handleResize () {
     this.setState(this.updateState({ selectedId: this.state.selectedId }))
   }
-
   handleButtonChange (nodeId, optionText) {
     // we've got to mutate here just because
     person.forEach((node, i) => {
@@ -85,7 +91,6 @@ class Game extends Component {
       this.setState(this.updateState(this.state))
     }
   }
-
   handleButtonAdd (newNodeId, currentNodeId) {
     person.forEach((node, i) => {
       if (currentNodeId === node.id) {
@@ -120,7 +125,6 @@ class Game extends Component {
     })
     this.setState(this.updateState(this.state))
   }
-
   handleMessageAdd (nodeId, cb) {
     // we've got to mutate here just because
     person.forEach((node, i) => {
@@ -131,23 +135,40 @@ class Game extends Component {
     })
     this.setState(this.updateState(this.state), cb)
   }
-
-  updateState ({ selectedId }) {
+  updateState ({ selectedId, zoom }) {
     const newState = {
+      zoom,
       selectedId,
       w: window.innerWidth,
       h: window.innerHeight,
+      maxNodeHeight: 0,
+      maxNodeDepth: 0,
     }
-    const treeLayout = d3.tree().nodeSize([newState.w, newState.h * 2])
+    // if (newState.zoom.x === undefined) newState.zoom = { x: 0, y: 0 }
+    if (newState.zoom.x === undefined) newState.zoom = { x: BASE_ZOOM, y: BASE_ZOOM }
+
+    const treeLayout = d3.tree().size([newState.w, newState.h])
+
     const tree = treeLayout(stratifier(person))
+
+    window.treeLayout = treeLayout
+    window.tree = tree
+    window.d3 = d3
+
     const nodes = []
     tree.each((node) => {
+      newState.maxNodeHeight = Math.max(node.height, newState.maxNodeHeight)
+      newState.maxNodeDepth = Math.max(node.depth, newState.maxNodeDepth)
       if (selectedId && selectedId === node.data.id) {
         newState.selected = node
         newState.selectedId = node.data.id
       }
       nodes.push(node)
     })
+    newState.nodes = nodes
+
+    const links = tree.links()
+    newState.links = links
 
     if (!newState.selected) {
       const selected = nodes.filter(({ parent }) => (
@@ -156,12 +177,11 @@ class Game extends Component {
       newState.selected = selected
       newState.selectedId = selected.data.id
     }
-    newState.nodes = nodes
     return newState
   }
-
   handleSelectNode ({ id }) {
-    this.setState(this.updateState({ selectedId: id }))
+    const newState = Object.assign(this.state, { selectedId: id })
+    this.setState(this.updateState(newState))
   }
   renderParentButton () {
     const { parent } = this.state.selected
@@ -176,7 +196,6 @@ class Game extends Component {
         }}>{'<--'}</Button>
     )
   }
-
   renderEditButton () {
     return (
       <Button
@@ -200,11 +219,32 @@ class Game extends Component {
         }}>{this.state.editing ? 'dynamic' : 'static'}</Button>
     )
   }
+  renderZoomButton () {
+    return (
+      <Button
+        editing={false}
+        opacity="1"
+        style={{ fontSize: 16 }}
+        onClick={(e) => {
+          this.setState(this.updateState({
+            zoom: (this.state.zoom.x !== BASE_ZOOM) ?
+              {
+                x: BASE_ZOOM,
+                y: BASE_ZOOM,
+              } : {
+                x: this.state.maxNodeHeight + 1,
+                y: this.state.maxNodeDepth + 1,
+              }
+          }))
+        }}>zoom</Button>
+    )
+  }
   renderControlPanel () {
     return (
       <ControlPanel>
         {this.renderParentButton()}
         {this.renderEditButton()}
+        {this.renderZoomButton()}
       </ControlPanel>
     )
   }
@@ -217,20 +257,27 @@ class Game extends Component {
           width={this.state.w}
           height={this.state.h}>
           <Motion style={{
-            x: spring(this.state.selected.x * -1),
-            y: spring(this.state.selected.y * -1),
+            x: spring(this.state.selected.x),
+            y: spring(this.state.selected.y),
             w: spring(this.state.w),
             h: spring(this.state.h),
+            zoomX: spring(this.state.zoom.x),
+            zoomY: spring(this.state.zoom.y),
+            maxNodeDepth: spring(this.state.maxNodeDepth),
+            maxNodeHeight: spring(this.state.maxNodeHeight),
           }}>
             {
-              ({ x, y, w, h }) => (
+              ({ x, y, w, h, zoomX, zoomY, maxNodeDepth, maxNodeHeight }) => (
                 <Screen
                   editing={this.state.editing}
-                  x={x} y={y}
-                  dimensions={{
-                    w: w,
-                    h: h,
-                  }}
+                  selectedId={this.state.selected.data.id}
+                  baseZoom={BASE_ZOOM}
+                  zoomX={zoomX}
+                  zoomY={zoomY}
+                  x={x}
+                  y={y}
+                  w={w}
+                  h={h}
                   onSelectNode={this.handleSelectNode}
                   onButtonAdd={this.handleButtonAdd}
                   onButtonChange={this.handleButtonChange}
@@ -238,6 +285,9 @@ class Game extends Component {
                   onMessageAdd={this.handleMessageAdd}
                   onMessageChange={this.handleMessageChange}
                   onMessageDelete={this.handleMessageDelete}
+                  maxNodeDepth={maxNodeDepth}
+                  maxNodeHeight={maxNodeHeight}
+                  links={this.state.links}
                   nodes={this.state.nodes} />
               )
             }

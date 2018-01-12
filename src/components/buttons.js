@@ -29,6 +29,7 @@ class Buttons extends Component {
     const buttons = (this.props.node.children || []).map((child, i) => {
       return (
         <Button
+          zoomed={this.props.zoomed}
           nodeId={child.data.id}
           editing={this.props.editing}
           opacity={this.props.opacity}

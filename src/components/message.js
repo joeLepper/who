@@ -3,8 +3,10 @@ const { Component } = React
 const styled = require('styled-components').default
 const Button = require('./button')
 
+const FONT_SIZE = 32
+
 const MessageContainer = styled.li`
-  font-size: 32;
+  font-size: ${FONT_SIZE};
   margin: auto;
   flex: 1 1 auto;
   width: 96vw;
@@ -21,12 +23,12 @@ const P = styled.p`
 
 const Input = styled.input`
   margin: auto;
-  font-size: 32;
   border: none;
   outline: none;
   width: 90%;
   text-align: center;
   color: #f09;
+  font-size: ${FONT_SIZE};
 `
 
 const Div = styled.div`
@@ -39,7 +41,7 @@ const Div = styled.div`
 const A = styled.a`
   width: 10%;
   margin: auto;
-  font-size: 16;
+  font-size: ${FONT_SIZE};
 `
 
 class Message extends Component {
@@ -54,15 +56,13 @@ class Message extends Component {
   renderDisplayMessage () {
     if (this.props.editing) return (
       <Div>
-        <Button
+        {
+          <Button
           editing={false}
-          style={{
-            width: '6%',
-            fontSize: 16,
-          }}
           opacity={this.props.opacity}
           onClick={this.handleMessageDelete}
           key='new button'>delete</Button>
+        }
         <Input
           value={this.props.children}
           onChange={(e) => {
@@ -76,7 +76,7 @@ class Message extends Component {
   }
   render () {
     return (
-      <MessageContainer onClick={this.props.onClick} style={{ opacity: this.props.opacity}}>
+      <MessageContainer onClick={this.props.onClick}>
         {this.renderDisplayMessage()}
       </MessageContainer>
     )
