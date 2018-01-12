@@ -135,7 +135,8 @@ class Game extends Component {
     })
     this.setState(this.updateState(this.state), cb)
   }
-  updateState ({ selectedId, zoom }) {
+  updateState ({ selectId, zoom }) {
+    const selectedId = selectId || (this.state && this.state.selectedId)
     const newState = {
       zoom,
       selectedId,
@@ -144,7 +145,6 @@ class Game extends Component {
       maxNodeHeight: 0,
       maxNodeDepth: 0,
     }
-    // if (newState.zoom.x === undefined) newState.zoom = { x: 0, y: 0 }
     if (newState.zoom.x === undefined) newState.zoom = { x: BASE_ZOOM, y: BASE_ZOOM }
 
     const treeLayout = d3.tree().size([newState.w, newState.h])
