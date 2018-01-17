@@ -5,6 +5,8 @@ const bodyParser = require('body-parser')
 const { join, resolve } = require('path')
 const { readFile, writeFile } = require('fs')
 const app = express()
+const cwd = process.cwd()
+const DEFAULT_PERSON = 'yaml'
 
 const compiler = webpack({
   entry: {
@@ -13,7 +15,7 @@ const compiler = webpack({
   output: {
     filename: '[name].bundle.js',
     path: resolve(__dirname, 'dist'),
-    publicPath: '/',
+    publicPath: '/assets',
   },
   externals: {
     'pixi.js': 'PIXI',
@@ -29,35 +31,20 @@ const compiler = webpack({
   }
 })
 
-const html = `
-<html>
-<head>
-  <style>
-    body, div {
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      width: 100vw;
-      height: 100vh;
-      margin: auto;
-    }
-  </style>
-</head>
-<body>
-  <div class="container"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"></script>
-  <script src="app.bundle.js"></script>
-</body>
-</html>
-`
-
-app.use(webpackDevMiddleware(compiler, {}))
-app.get('/', (req, res) => res.status(200).send(html))
+app.use(webpackDevMiddleware(compiler, {
+  publicPath: '/assets',
+}))
+app.get('/', (req, res) => {
+  const filePath = join(cwd, 'src', 'people', `${DEFAULT_PERSON}.json`)
+  readFile(filePath, 'utf8', (err, contents) => {
+    const person = JSON.parse(contents)
+    res.redirect(`/person/${DEFAULT_PERSON}/node/${person[0].id}`)
+  })
+})
 app.use(bodyParser.json())
 app.post('/person/:id', (req, res) => {
   const fileContents = JSON.stringify(req.body, null, 2)
-  const filePath = join(process.cwd(), 'src', 'people', `${req.params.id}.json`)
+  const filePath = join(cwd, 'src', 'people', `${req.params.id}.json`)
   console.log('========')
   console.log(filePath)
   console.log(fileContents)
@@ -65,6 +52,12 @@ app.post('/person/:id', (req, res) => {
     if (err) res.status(500).send('Something bad.')
     else res.status(200).send('Something good.')
   })
+})
+app.get('/person/:id', (req, res) => {
+  res.sendFile(join(cwd, 'src', 'people', req.params.id))
+})
+app.get('/person/:id/node/:nodeId', (req, res) => {
+  res.sendFile(join(cwd, 'src', 'index.html'))
 })
 
 app.listen(5556)

@@ -49,6 +49,7 @@ class Button extends Component {
         size={this.props.children.length}
         value={this.props.children}
         onChange={(e) => {
+          console.log(this.props.nodeId)
           this.props.onChange(this.props.nodeId, e.currentTarget.value)
         }}/>
     )
@@ -66,6 +67,7 @@ class Button extends Component {
     if (this.props.opacity) containerStyle.cursor = 'pointer'
     return (
       <ButtonContainer
+        className={this.props.className}
         onClick={this.handleClick}
         style={Object.assign(containerStyle, this.props.style)}>
         {this.props.editing ? (

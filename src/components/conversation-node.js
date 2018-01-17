@@ -77,8 +77,9 @@ class ConversationNode extends Component {
             onButtonAdd={this.props.onButtonAdd}
             onButtonChange={this.props.onButtonChange}
             onButtonDelete={this.props.onButtonDelete}
-            onSelectNode={this.props.onSelectNode}
+            ee={this.props.ee}
             opacity={this.props.node.data.messages.length - 1 === this.state.idx ? 1 : 0}
+            additionalLinks={this.props.additionalLinks}
             node={this.props.node} />
 
         </Div>

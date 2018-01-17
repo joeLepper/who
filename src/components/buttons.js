@@ -25,7 +25,7 @@ class Buttons extends Component {
     this.props.onButtonAdd(newNodeId, currentNodeId)
   }
   render () {
-    if (!this.props.node.children && !this.props.editing) return null
+    if ((!this.props.node.data.children && !(this.props.additionalLinks && this.props.additionalLinks.length)) && !this.props.editing) return null
     const buttons = (this.props.node.children || []).map((child, i) => {
       return (
         <Button
@@ -34,13 +34,34 @@ class Buttons extends Component {
           editing={this.props.editing}
           opacity={this.props.opacity}
           onChange={this.props.onButtonChange}
-          key={i}
+          key={`natural-child-${i}`}
+          className="natural-child"
           onButtonDelete={this.props.onButtonDelete}
           onClick={(e) => {
-            if (!this.props.editing) this.props.onSelectNode({ id: child.data.id })
+            if (!this.props.editing) this.props.ee.emit('select-node', [{ id: child.data.id }])
           }}>{child.data.optionText}</Button>
       )
-    })
+    }).concat(
+      this.props.additionalLinks.filter((link) => {
+        return this.props.node.data.id === link.source.data.id
+      }).map((link, i) => {
+        return (
+          <Button
+            zoomed={this.props.zoomed}
+            nodeId={link.childId}
+            editing={this.props.editing}
+            opacity={this.props.opacity}
+            onChange={this.props.onButtonChange}
+            key={`adopted-child-${i}`}
+            className="adopted-child"
+            onButtonDelete={this.props.onButtonDelete}
+            onClick={(e) => {
+              if (!this.props.editing) this.props.ee.emit('select-node', [{ id: link.target.data.id }])
+            }}
+          >{link.optionText}</Button>
+        )
+      })
+    )
     if (this.props.editing) buttons.push(
       <Button
         editing={false}

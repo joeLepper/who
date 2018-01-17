@@ -25,22 +25,59 @@ class GraphicalNode extends Component {
   }
   render () {
     return (
-      <g transform={`translate(${this.props.node.x}, ${this.props.node.y})`}>
-        <Circle r={ this.state.hover ? 8 : 2} />
-        {this.state.hover ? <ActiveCircle r="5" /> : null}
-        {this.state.hover ? <Circle r="2" /> : null}
+      <g
+        onMouseUp={(e) => {
+          e.stopPropagation()
+          e.preventDefault()
+
+          if (this.props.dragging) {
+            const { dragSource, node } = this.props
+
+            // click!
+            if (node.data.id === dragSource.id) {
+              this.props.onDragCancel()
+              this.props.ee.emit('select-node', [{ id: this.props.node.data.id }])
+            }
+            else {
+              const dragState = {
+                line: {
+                  source: dragSource,
+                  target: {
+                    x: node.x,
+                    y: node.y,
+                    id: node.data.id
+                  }
+                },
+              }
+
+              this.props.onDragEnd(dragState)
+            }
+          }
+        }}
+        transform={`translate(${this.props.node.x}, ${this.props.node.y})`}>
+        <Circle r={this.state.hover ? 8 : 2} />
+        {this.state.hover ? <ActiveCircle r={5} /> : null}
+        {this.state.hover ? <Circle r={2} /> : null}
         <HitTarget
           onMouseEnter={() => {
+            console.log('enter')
             this.setState({ hover: true })
           }}
           onMouseLeave={() => {
+            console.log('leave')
             this.setState({ hover: false })
           }}
           onMouseDown={() => {
-            console.log('down.')
-            this.setState({ active: false })
+            const { node } = this.props
+            const dragState = {
+              line: {
+                source: { x: node.x, y: node.y, id: node.data.id },
+                target: { x: node.x, y: node.y },
+              }
+            }
+            this.props.onDragBegin(dragState)
           }}
-          r="8" />
+          r={20} />
       </g>
     )
   }
